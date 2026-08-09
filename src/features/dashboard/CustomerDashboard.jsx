@@ -17,6 +17,7 @@ import { fetchTransactions, createTransactionRequest } from "../transactions/tra
 import { fetchLoans, requestLoan } from "../loans/loansSlice";
 import { logoutUser } from "../auth/authSlice";
 import { updateCustomerBalance } from "../customers/customersSlice";
+import { fsSubscribe } from "../../firebase/firestoreService";
 
 const statusColor = { approved: "success", pending: "warning", rejected: "error" };
 
@@ -54,10 +55,14 @@ const CustomerDashboard = () => {
   const customerId = user?.profile?.id;
 
   useEffect(() => {
-    if (customerId) {
-      dispatch(fetchTransactions(customerId));
-      dispatch(fetchLoans(customerId));
-    }
+    if (!customerId) return;
+    const unsubTx = fsSubscribe("transactions", (data) => {
+      dispatch({ type: "transactions/fetchAll/fulfilled", payload: data.filter((t) => t.customerId === customerId) });
+    }, "customerId", customerId);
+    const unsubLoans = fsSubscribe("loans", (data) => {
+      dispatch({ type: "loans/fetchAll/fulfilled", payload: data.filter((l) => l.customerId === customerId) });
+    }, "customerId", customerId);
+    return () => { unsubTx(); unsubLoans(); };
   }, [dispatch, customerId]);
 
   const WITHDRAW_MANAGER_LIMIT = 100000;

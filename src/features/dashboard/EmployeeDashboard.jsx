@@ -21,6 +21,7 @@ import { fetchCustomers, createCustomer, updateCustomer, deleteCustomer, updateC
 import { fetchTransactions, updateTransactionStatus } from "../transactions/transactionsSlice";
 import { fetchLoans, decideLoan, LOAN_APPROVAL_LIMIT } from "../loans/loansSlice";
 import { logoutUser } from "../auth/authSlice";
+import { fsSubscribe } from "../../firebase/firestoreService";
 
 const statusColor = { approved: "success", pending: "warning", rejected: "error" };
 const emptyForm = { name: "", email: "", password: "", balance: "", status: "active" };
@@ -57,9 +58,16 @@ const EmployeeDashboard = () => {
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchCustomers());
-    dispatch(fetchTransactions());
-    dispatch(fetchLoans());
+    const unsubCustomers = fsSubscribe("customers", (data) => {
+      dispatch({ type: "customers/fetchAll/fulfilled", payload: data });
+    });
+    const unsubTx = fsSubscribe("transactions", (data) => {
+      dispatch({ type: "transactions/fetchAll/fulfilled", payload: data });
+    });
+    const unsubLoans = fsSubscribe("loans", (data) => {
+      dispatch({ type: "loans/fetchAll/fulfilled", payload: data });
+    });
+    return () => { unsubCustomers(); unsubTx(); unsubLoans(); };
   }, [dispatch]);
 
   const openCreate = () => { setEditTarget(null); setForm(emptyForm); setFormError(""); setDialogOpen(true); };

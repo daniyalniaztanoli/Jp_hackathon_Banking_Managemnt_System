@@ -3,13 +3,13 @@ import {
   collection,
   doc,
   getDocs,
-  getDoc,
   addDoc,
   setDoc,
   updateDoc,
   deleteDoc,
   query,
   where,
+  onSnapshot,
 } from "firebase/firestore";
 
 export const fsGetAll = async (col) => {
@@ -23,7 +23,6 @@ export const fsGetWhere = async (col, field, value) => {
 };
 
 export const fsAdd = async (col, data) => {
-  // If data has an id, use setDoc so Firestore doc id matches our id
   if (data.id) {
     await setDoc(doc(db, col, String(data.id)), data);
     return data;
@@ -38,4 +37,14 @@ export const fsUpdate = async (col, id, data) => {
 
 export const fsDelete = async (col, id) => {
   await deleteDoc(doc(db, col, String(id)));
+};
+
+// Real-time listener — calls callback whenever data changes
+export const fsSubscribe = (col, callback, filterField, filterValue) => {
+  const q = filterField
+    ? query(collection(db, col), where(filterField, "==", filterValue))
+    : collection(db, col);
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+  });
 };

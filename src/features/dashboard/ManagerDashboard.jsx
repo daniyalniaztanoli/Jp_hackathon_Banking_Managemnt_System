@@ -25,6 +25,7 @@ import { fetchTransactions, updateTransactionStatus } from "../transactions/tran
 import { fetchLoans, decideLoan, LOAN_APPROVAL_LIMIT } from "../loans/loansSlice";
 import { fetchEmployees, createEmployee, updateEmployee, deleteEmployee } from "../employees/employeesSlice";
 import { logoutUser } from "../auth/authSlice";
+import { fsSubscribe } from "../../firebase/firestoreService";
 
 const statusColor = { approved: "success", pending: "warning", rejected: "error" };
 const emptyEmpForm = { name: "", email: "", password: "", salary: "", status: "active" };
@@ -75,10 +76,19 @@ const ManagerDashboard = () => {
   const [deleteTarget, setDeleteTarget] = useState(null); // { type: "employee"|"customer", row }
 
   useEffect(() => {
-    dispatch(fetchCustomers());
-    dispatch(fetchTransactions());
-    dispatch(fetchLoans());
-    dispatch(fetchEmployees());
+    const unsubCustomers = fsSubscribe("customers", (data) => {
+      dispatch({ type: "customers/fetchAll/fulfilled", payload: data });
+    });
+    const unsubEmployees = fsSubscribe("employees", (data) => {
+      dispatch({ type: "employees/fetchAll/fulfilled", payload: data });
+    });
+    const unsubTx = fsSubscribe("transactions", (data) => {
+      dispatch({ type: "transactions/fetchAll/fulfilled", payload: data });
+    });
+    const unsubLoans = fsSubscribe("loans", (data) => {
+      dispatch({ type: "loans/fetchAll/fulfilled", payload: data });
+    });
+    return () => { unsubCustomers(); unsubEmployees(); unsubTx(); unsubLoans(); };
   }, [dispatch]);
 
   // ── Employee CRUD ──
