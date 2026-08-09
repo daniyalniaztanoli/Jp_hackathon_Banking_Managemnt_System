@@ -9,17 +9,17 @@ import store from "./app/store.js";
 import theme from "./theme/theme.js";
 import App from "./App.jsx";
 import "./index.css";
-import axiosInstance from "./api/axiosInstance.js";
+import { fsGetWhere } from "./firebase/firestoreService.js";
 
 const findUserRole = async (email) => {
   const [customers, employees, managers] = await Promise.all([
-    axiosInstance.get(`/customers?email=${email}`),
-    axiosInstance.get(`/employees?email=${email}`),
-    axiosInstance.get(`/managers?email=${email}`),
+    fsGetWhere("customers", "email", email),
+    fsGetWhere("employees", "email", email),
+    fsGetWhere("managers", "email", email),
   ]);
-  if (customers.data.length) return { role: "customer", profile: customers.data[0] };
-  if (employees.data.length) return { role: "employee", profile: employees.data[0] };
-  if (managers.data.length) return { role: "manager", profile: managers.data[0] };
+  if (customers.length) return { role: "customer", profile: customers[0] };
+  if (employees.length) return { role: "employee", profile: employees[0] };
+  if (managers.length) return { role: "manager", profile: managers[0] };
   return null;
 };
 
