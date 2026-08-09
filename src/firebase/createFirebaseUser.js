@@ -1,11 +1,5 @@
-import { firebaseConfig } from "./config";
+const SIGNUP_URL = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${import.meta.env.VITE_FIREBASE_API_KEY}`;
 
-const SIGNUP_URL = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${firebaseConfig.apiKey}`;
-
-/**
- * Creates a Firebase Auth account for a new user.
- * Does NOT affect the currently logged-in session.
- */
 export const createFirebaseUser = async (email, password) => {
   const res = await fetch(SIGNUP_URL, {
     method: "POST",
