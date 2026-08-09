@@ -21,7 +21,7 @@ import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import { fetchCustomers, createCustomer, updateCustomer, deleteCustomer, updateCustomerBalance } from "../customers/customersSlice";
-import { fetchTransactions } from "../transactions/transactionsSlice";
+import { fetchTransactions, updateTransactionStatus } from "../transactions/transactionsSlice";
 import { fetchLoans, decideLoan, LOAN_APPROVAL_LIMIT } from "../loans/loansSlice";
 import { fetchEmployees, createEmployee, updateEmployee, deleteEmployee } from "../employees/employeesSlice";
 import { logoutUser } from "../auth/authSlice";
@@ -129,6 +129,18 @@ const ManagerDashboard = () => {
     setDeleteTarget(null);
   };
 
+  const WITHDRAW_MANAGER_LIMIT = 100000;
+
+  // ── Withdraw approval (manager) ──
+  const handleTxDecision = (row, status) => {
+    dispatch(updateTransactionStatus({ id: row.id, status })).then(() => {
+      if (status === "approved" && row.type === "withdraw") {
+        const customer = customers.find((c) => c.id === row.customerId);
+        if (customer) dispatch(updateCustomerBalance({ id: customer.id, balance: customer.balance - row.amount }));
+      }
+    });
+  };
+
   // ── Loan approval ──
   const handleLoanDecision = (row, status) => {
     dispatch(decideLoan({ id: row.id, status, approvedBy: user.profile.name, approvedById: user.profile.id })).then(() => {
@@ -214,6 +226,15 @@ const ManagerDashboard = () => {
     { field: "amount", headerName: "Amount (Rs)", flex: 1, renderCell: (p) => <Typography variant="body2" fontWeight={600}>Rs {p.value?.toLocaleString()}</Typography> },
     { field: "date", headerName: "Date", flex: 1 },
     { field: "status", headerName: "Status", flex: 0.8, renderCell: (p) => <Chip label={p.value} color={statusColor[p.value]} size="small" /> },
+    {
+      field: "actions", headerName: "Actions", flex: 1.8, sortable: false,
+      renderCell: (p) => p.row.status === "pending" && p.row.type === "withdraw" && p.row.amount >= WITHDRAW_MANAGER_LIMIT ? (
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <Button size="small" variant="contained" color="success" startIcon={<CheckCircleOutlinedIcon />} onClick={() => handleTxDecision(p.row, "approved")}>Approve</Button>
+          <Button size="small" variant="outlined" color="error" startIcon={<CancelOutlinedIcon />} onClick={() => handleTxDecision(p.row, "rejected")}>Reject</Button>
+        </Box>
+      ) : "—",
+    },
   ];
 
   const loanColumns = [

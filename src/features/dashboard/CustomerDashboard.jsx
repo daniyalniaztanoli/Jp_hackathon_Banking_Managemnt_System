@@ -16,6 +16,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { fetchTransactions, createTransactionRequest } from "../transactions/transactionsSlice";
 import { fetchLoans, requestLoan } from "../loans/loansSlice";
 import { logoutUser } from "../auth/authSlice";
+import { updateCustomerBalance } from "../customers/customersSlice";
 
 const statusColor = { approved: "success", pending: "warning", rejected: "error" };
 
@@ -59,9 +60,34 @@ const CustomerDashboard = () => {
     }
   }, [dispatch, customerId]);
 
-  const handleTxSubmit = () => {
-    if (!txAmount || Number(txAmount) <= 0) return setTxError("Please enter a valid amount.");
-    dispatch(createTransactionRequest({ customerId, type: txType, amount: Number(txAmount) }));
+  const WITHDRAW_MANAGER_LIMIT = 100000;
+
+  const handleTxSubmit = async () => {
+    const amount = Number(txAmount);
+    if (!txAmount || amount <= 0) return setTxError("Please enter a valid amount.");
+
+    if (txType === "withdraw") {
+      const currentBalance = user?.profile?.balance || 0;
+      if (amount > currentBalance) return setTxError(`Insufficient balance. Your balance is Rs ${currentBalance.toLocaleString()}.`);
+
+      if (amount >= WITHDRAW_MANAGER_LIMIT) {
+        // needs manager approval — create pending transaction
+        dispatch(createTransactionRequest({ customerId, type: txType, amount, requiresManager: true }));
+        setTxDialogOpen(false);
+        setTxAmount("");
+        setTxError("");
+        return;
+      }
+
+      // auto approve small withdraw
+      const result = await dispatch(createTransactionRequest({ customerId, type: txType, amount, status: "approved" }));
+      if (result.meta.requestStatus === "fulfilled") {
+        dispatch(updateCustomerBalance({ id: customerId, balance: currentBalance - amount }));
+      }
+    } else {
+      dispatch(createTransactionRequest({ customerId, type: txType, amount }));
+    }
+
     setTxDialogOpen(false);
     setTxAmount("");
     setTxError("");
@@ -219,6 +245,11 @@ const CustomerDashboard = () => {
             <MenuItem value="donation">Donation</MenuItem>
           </TextField>
           <TextField fullWidth label="Amount (Rs)" type="number" margin="normal" value={txAmount} onChange={(e) => setTxAmount(e.target.value)} inputProps={{ min: 1 }} />
+          {txType === "withdraw" && (
+            <Alert severity="info" sx={{ mt: 1 }}>
+              Withdraw &lt; Rs 100,000 → auto approved. Rs 100,000 or above → Manager approval required.
+            </Alert>
+          )}
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
           <Button onClick={() => setTxDialogOpen(false)} variant="outlined">Cancel</Button>

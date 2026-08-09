@@ -9,7 +9,8 @@ export const fetchTransactions = createAsyncThunk("transactions/fetchAll", async
 });
 
 export const createTransactionRequest = createAsyncThunk("transactions/create", async (transactionData) => {
-  const payload = { ...transactionData, status: "pending", date: new Date().toISOString().split("T")[0] };
+  const { status, ...rest } = transactionData;
+  const payload = { ...rest, status: status || "pending", date: new Date().toISOString().split("T")[0] };
   return await fsAdd(COL, payload);
 });
 
