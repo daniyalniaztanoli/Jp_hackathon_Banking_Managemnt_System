@@ -1,0 +1,155 @@
+{
+  "customers": [
+    {
+      "id": "cust_001",
+      "name": "Ahmed",
+      "email": "ahmed@gmail.com",
+      "balance": 100000,
+      "status": "active"
+    },
+    {
+      "name": "Daniyal",
+      "email": "dniaz0122@gmail.com",
+      "balance": 10000,
+      "status": "active",
+      "id": "9QnCEOdHoH4"
+    }
+  ],
+  "employees": [
+    {
+      "id": "emp_001",
+      "name": "Ali Raza",
+      "email": "ali@bank.com",
+      "salary": 60000,
+      "status": "active",
+      "role": "employee"
+    },
+    {
+      "name": "Daniyal",
+      "email": "daniyal@bank.com",
+      "salary": 100000,
+      "status": "active",
+      "role": "employee",
+      "id": "PMWUafchMRE"
+    },
+    {
+      "name": "Danish",
+      "email": "danish@bank.com",
+      "salary": 50000,
+      "status": "active",
+      "role": "employee",
+      "id": "1THizBaRCOg"
+    },
+    {
+      "name": "Noman",
+      "email": "noman@gmail.com",
+      "salary": 100000,
+      "status": "active",
+      "role": "employee",
+      "id": "I0ywA8ulXz4"
+    }
+  ],
+  "managers": [
+    {
+      "id": "mgr_001",
+      "name": "Usman Malik",
+      "email": "manager@bank.com",
+      "role": "manager"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "txn_001",
+      "customerId": "cust_001",
+      "type": "deposit",
+      "amount": 50000,
+      "status": "approved",
+      "date": "2026-02-20"
+    },
+    {
+      "id": "txn_002",
+      "customerId": "cust_001",
+      "type": "withdraw",
+      "amount": 20000,
+      "status": "approved",
+      "date": "2026-02-21"
+    },
+    {
+      "customerId": "cust_001",
+      "type": "deposit",
+      "amount": 10000,
+      "status": "approved",
+      "date": "2026-08-09",
+      "id": "pe3utjX2IyY"
+    },
+    {
+      "customerId": "cust_001",
+      "type": "withdraw",
+      "amount": 10000,
+      "status": "approved",
+      "date": "2026-08-09",
+      "id": "tL3bV8DPNHI"
+    },
+    {
+      "customerId": "cust_001",
+      "type": "donation",
+      "amount": 1000,
+      "status": "approved",
+      "date": "2026-08-09",
+      "id": "nSUmXKoTdlQ"
+    }
+  ],
+  "loans": [
+    {
+      "id": "loan_001",
+      "customerId": "cust_001",
+      "amount": 800000,
+      "purpose": "Business Expansion",
+      "duration": "12 months",
+      "status": "approved",
+      "approvedBy": "employee",
+      "approvedById": "emp_001"
+    },
+    {
+      "id": "loan_002",
+      "customerId": "cust_001",
+      "amount": 1500000,
+      "purpose": "Property Purchase",
+      "duration": "24 months",
+      "status": "approved",
+      "approvedBy": "Usman Malik",
+      "approvedById": "mgr_001"
+    },
+    {
+      "customerId": "cust_001",
+      "amount": 10000,
+      "purpose": "House",
+      "duration": "12 months",
+      "status": "approved",
+      "approvedBy": "Ali Raza",
+      "id": "bt1z1JLbPRI",
+      "approvedById": "emp_001"
+    },
+    {
+      "customerId": "cust_001",
+      "amount": 3000,
+      "purpose": "Car Insurance",
+      "duration": "12 months",
+      "status": "rejected",
+      "approvedBy": "Ali Raza",
+      "id": "UhC_TIe0eMc",
+      "approvedById": "emp_001"
+    },
+    {
+      "customerId": "cust_001",
+      "amount": 19,
+      "purpose": "naswar",
+      "duration": "1 months",
+      "status": "approved",
+      "approvedBy": "Ali Raza",
+      "id": "-OEH79ZSbls",
+      "approvedById": "emp_001"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
